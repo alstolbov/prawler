@@ -123,14 +123,15 @@ if (process.argv[2]) {
 }
 
 process.on('SIGINT', function() {
-    save();
-    process.exit();
+    save(function () {
+        process.exit();
+    });
 });
 
-function save() {
+function save(callback) {
     if (process.argv[3]) {
-        // console.log('WordCollection', WordCollection);
-        // console.log('LinkCollection', LinkCollection);
+        console.log('WordCollection', WordCollection);
+        console.log('LinkCollection', LinkCollection);
         console.log('PageCounter', PageCounter);
     } else {
         var fileWords = './resFiles/' + RootUrl + '_words.json';
@@ -144,6 +145,10 @@ function save() {
                         console.log('error write res!', err);
                     } else {
                         console.log('DONE.');
+                    }
+
+                    if (callback) {
+                        callback();
                     }
                 });
             }
