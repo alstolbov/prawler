@@ -1,10 +1,16 @@
 var request = require('request');
+var stdio = require('stdio');
 var cheerio = require('cheerio');
 var jsonfile = require('jsonfile');
 // var Iconv = require('iconv');
 var async = require('async');
 var _ = require('lodash');
 var Utils = require('./utils/url-utils');
+
+var ops = stdio.getopt({
+    'host': {key: 'h', args: 1, description: 'Host name'},
+    'log': {key: 'l', description: 'Write to log (true/false)'}
+});
 
 var PageCounter = 0;
 var LinkCollection = {};
@@ -51,7 +57,7 @@ var queue = async.queue(function crawl(url, next) {
         // body = conv.convert(body).toString();
 
         var $ = cheerio.load(body);
-        if (process.argv[3]) {
+        if (ops.log) {
             console.log('>>>>>>>>>>>>>>>>>>>>>>>>>', url);
         }
 
@@ -113,10 +119,10 @@ var queue = async.queue(function crawl(url, next) {
 
 queue.drain = save;
 
-if (process.argv[2]) {
-    RootUrl = Utils.getHost(process.argv[2]);
+if (ops.host) {
+    RootUrl = Utils.getHost(ops.host);
     queue.push(
-        'http://' + process.argv[2]
+        'http://' + ops.host
     );
 } else {
     console.log('No site name!');
@@ -129,7 +135,7 @@ process.on('SIGINT', function() {
 });
 
 function save(callback) {
-    if (process.argv[3]) {
+    if (ops.log) {
         console.log('WordCollection', WordCollection);
         console.log('LinkCollection', LinkCollection);
         console.log('PageCounter', PageCounter);
